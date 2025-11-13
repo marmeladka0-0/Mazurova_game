@@ -1,65 +1,92 @@
 import pygame
-from os.path import join #to show the path to file correctly
+from random import randint
 
-from random import randint #for randow display of sparks or etc.
+from settings import * 
+from player import Player
+from tilemap import TileMap
+from frame import *
 
-# general setup
-pygame.init() #initialize
-
-#window size
-WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
-display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-
-pygame.display.set_caption("DigOut.CandyVersion") #change the name of window
-
-#set icon
-path = join('images', 'player1_mini.png') #ота страшна бібліотека
-#.convert() for not transperent and .convert_alpha() for transperent
-icon = pygame.image.load(path).convert_alpha()
-pygame.display.set_icon(icon)
-
-running = True
-
-#surface
-surf = pygame.Surface((100, 200))
-surf.fill('orange')
-x = 100
-
-#player
-player_surf = icon
-player_rect = player_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
-#rect целие числа frect нецелие
-player_direction = 1
-
-#random elements positions
-elements_position = [(randint(0, WINDOW_WIDTH), randint(0,WINDOW_HEIGHT)) for i in range(20)]
-
-while running:
-    # event loop
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+def setup_game():
     
-    # draw the game
-    # fill with the one color
-    display_surface.fill('bisque4')
+    pygame.init() 
 
-    #random background elements
-    for position in elements_position:
-        display_surface.blit(player_surf, position)
-
-    player_rect.x += player_direction * 0.4
-    if player_rect.right > WINDOW_WIDTH or player_rect.left < 0:
-        player_direction *= -1
-    display_surface.blit(player_surf, player_rect) #one surface to another
     
-    # pygame.display.flip() # update part of the window
-    pygame.display.update() # update entire window
+    display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT + FRAME_THICKNESS), pygame.NOFRAME)
+    pygame.display.set_caption(CAPTION) 
 
-    #pygame.Surface((width, height)) To create a plain surface
-    #pygame.image.load(path) To create a surface from an image
-    #font.render(text, AntiAlias, Color) To create a surface from text
+    
+    try:
+        icon_image = pygame.image.load(ICON_IMAGE_PATH).convert_alpha()
+        element_image = pygame.image.load(ELEMENT_IMAGE_PATH).convert_alpha()
 
+        pygame.display.set_icon(icon_image)
+    except pygame.error as e:
+        print(f"Image download exeption: {e}")
+        icon_image = None 
+        element_image = None
 
+    return display_surface, icon_image, element_image
 
-pygame.quit() #uninitialize
+def create_random_elements(num_elements):
+    return [(randint(0, WINDOW_WIDTH), randint(0, WINDOW_HEIGHT)) for _ in range(num_elements)]
+
+def draw_background_elements(surface, element_image, positions):
+    for position in positions:
+        surface.blit(element_image, position)
+
+def run_game():
+
+    display_surface, icon_image, element_image = setup_game()
+    
+    player_image_path = PLAYER_IMAGE_PATH
+    element_image_path = ELEMENT_IMAGE_PATH
+    tile_image_path = TILE_IMAGE_PATH
+
+    #Player creation
+    
+    tilemap = TileMap()
+    player = Player(player_image_path, tilemap)
+
+    #Random background elements
+    elements_position = create_random_elements(20)
+
+    running = True
+    while running:
+        #To stop the game
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                player.handle_move_event(event)
+            if check_frame_events(event):
+                running = False
+
+        #===Updates===
+        #Keys handling
+        #keys = pygame.key.get_pressed()
+        #player.handle_input(keys)
+
+        #Player
+        player.update()
+        
+
+        #===Visuals===
+        #Background
+        display_surface.fill('bisque4')
+
+        tilemap.draw(display_surface)
+
+        draw_styled_frame(display_surface)
+        draw_close_button(display_surface)
+        #Elements
+        #draw_background_elements(display_surface, element_image, elements_position)
+        
+        #Player draw
+        player.draw(display_surface)
+        
+        pygame.display.update() 
+
+    pygame.quit()
+
+if __name__ == '__main__':
+    run_game()

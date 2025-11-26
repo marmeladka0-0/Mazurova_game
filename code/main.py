@@ -1,22 +1,22 @@
+#import os
+#os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
 import pygame
 from random import randint
 
 from settings import * 
 from player import Player
 from tilemap import TileMap
-from frame import *
+#from frame import *
 from menu import *
 from datapanel import DataPanel 
 
 def setup_game():
     
     pygame.init() 
-
     
     display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT + FRAME_THICKNESS), pygame.NOFRAME)
     pygame.display.set_caption(CAPTION) 
 
-    
     try:
         icon_image = pygame.image.load(ICON_IMAGE_PATH).convert_alpha()
         element_image = pygame.image.load(ELEMENT_IMAGE_PATH).convert_alpha()
@@ -35,6 +35,24 @@ def create_random_elements(num_elements):
 def draw_background_elements(surface, element_image, positions):
     for position in positions:
         surface.blit(element_image, position)
+
+def start_new_game(display_surface, player_image_path):
+    # wait screen
+    display_surface.fill('black')
+    font = pygame.font.SysFont(None, 32)
+    text = font.render("Please wait", True, (255, 255, 255))
+    rect = text.get_rect(center=(SCREEN_CENTER_X, SCREEN_CENTER_Y))
+    display_surface.blit(text, rect)
+    draw_styled_frame(display_surface)
+    draw_close_button(display_surface)
+    pygame.display.update()
+
+    tilemap = TileMap()
+    player = Player(player_image_path, tilemap)
+    datapanel = DataPanel()
+    player.initial_y_offset = tilemap.offset.y
+
+    return tilemap, player, datapanel
 
 def run_game():
     display_surface, icon_image, element_image = setup_game()
@@ -68,24 +86,7 @@ def run_game():
             result = menu.handle_event(event)
             if result == 'start' and tilemap is None:
                 showing_menu = False
-
-                #wait screen
-                display_surface.fill('black')
-                font = pygame.font.SysFont(None, 32)
-                text = font.render("Your mom", True, (255, 255, 255))
-                rect = text.get_rect(center=(SCREEN_CENTER_X, SCREEN_CENTER_Y))
-                display_surface.blit(text, rect)
-                draw_styled_frame(display_surface)
-                draw_close_button(display_surface)
-                pygame.display.update()
-
-                MAP_WIDTH = 200
-                MAP_HEIGHT = 150
-                tilemap = TileMap()
-                #tilemap.save_map_to_file('data/level_1_map.txt')
-                player = Player(player_image_path, tilemap)
-                datapanel = DataPanel()
-                player.initial_y_offset = tilemap.offset.y
+                tilemap, player, datapanel = start_new_game(display_surface, player_image_path)
             elif result == 'quit':
                 return "quit"
                 running = False
@@ -99,9 +100,14 @@ def run_game():
             if check_frame_events(event):
                 running = False
 
-            if player.resources_collected < 0:
+            if player.resources_collected < 1:
                 choice = show_game_over_screen(display_surface)
-                return choice
+                if choice == 'menu': 
+                    return 'menu'
+                if choice == 'quit':
+                    return 'quit'
+                if choice == 'restart':
+                    tilemap, player, datapanel = start_new_game(display_surface, player_image_path)
             
         if not showing_menu and tilemap and player:
             player.update()

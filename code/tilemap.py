@@ -3,17 +3,19 @@ from settings import *
 from mapgenerator import generate_full_map
 import numpy as np
 
-generated_map, start_pos, exit_pos = generate_full_map(200, 150)
+#generated_map, start_pos, exit_pos = generate_full_map(200, 150)
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, pos, image):
+    def __init__(self, pos, image, type_value):
         super().__init__()
         #original_image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(image, (TILE_SIZE, TILE_SIZE))
         self.rect = self.image.get_rect(topleft=pos)
+        self.type = type_value   # 1, 2, 3
 
 class TileMap:
     def __init__(self):
+        generated_map, start_pos, exit_pos = generate_full_map(200, 150)
         self.map_data = self.expand_map_with_border(generated_map)
         self.tiles = self._create_tilemap()
         self.offset = pygame.Vector2(0, 0)
@@ -28,7 +30,7 @@ class TileMap:
         tile_images = {
             1: TILE_IMAGE_PATH,
             2: DIRT_IMAGE_PATH,
-            3: BUTTON_IMAGE_PATH
+            3: BLUE_SPHERE_PATH
         }
 
         loaded_images = {k: pygame.transform.scale(pygame.image.load(v).convert_alpha(),
@@ -41,7 +43,7 @@ class TileMap:
                     x = x_index * TILE_SIZE
                     y = y_index * TILE_SIZE + FRAME_THICKNESS
 
-                    tile = Tile((x, y), loaded_images[tile_value])
+                    tile = Tile((x, y), loaded_images[tile_value], tile_value)
                     tile_group.add(tile)
 
         return tile_group
@@ -95,3 +97,31 @@ class TileMap:
             print(f"Saved map: {filename}")
         except Exception as e:
             print(f"Exeption when downloading map: {e}")
+
+    def apply_gravity(self, player):
+        """
+        Гравитация падает только для блоков 3 (BLUE_SPHERE) внутри зоны видимости игрока
+        """
+        h, w = self.map_data.shape
+        changed = False
+
+        # Вычисляем границы зоны видимости в тайлах
+        buffer_tiles = 3  # чтобы блоки сразу за границей экрана тоже падали
+        start_x = max(0, int((player.rect.left + self.offset.x) // TILE_SIZE) - buffer_tiles)
+        end_x   = min(w, int((player.rect.right + self.offset.x) // TILE_SIZE) + buffer_tiles)
+        start_y = max(0, int((player.rect.top + self.offset.y) // TILE_SIZE) - buffer_tiles)
+        end_y   = min(h, int((player.rect.bottom + self.offset.y) // TILE_SIZE) + buffer_tiles)
+
+        # Проходим снизу вверх по зоне видимости
+        for y in range(end_y-2, start_y-1, -1):
+            for x in range(start_x, end_x):
+                tile = self.map_data[y, x]
+                if tile == 3 and self.map_data[y + 1, x] == 0:
+                    # Блок падает
+                    self.map_data[y + 1, x] = tile
+                    self.map_data[y, x] = 0
+                    changed = True
+
+        if changed:
+            # пересоздаём спрайты только в зоне видимости
+            self.tiles = self._create_tilemap()

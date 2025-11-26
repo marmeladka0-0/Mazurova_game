@@ -18,11 +18,11 @@ class DataPanel:
     def draw(self, surface, player):
         
         #resources
-        res_text = f"Ресурси: {player.resources_collected}"
+        res_text = f"Resources: {player.resources_collected}"
         res_surf = self.font.render(res_text, True, 'white')
         
         #depth
-        depth_text = f"Глибина: {player.current_depth_meters} м"
+        depth_text = f"Depth: {player.current_depth_meters} м"
         depth_surf = self.font.render(depth_text, True, 'white')
         
         #visualisation

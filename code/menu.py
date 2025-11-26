@@ -2,6 +2,7 @@ import pygame
 from typing import Optional
 from settings import *
 from button import Button
+from frame import *
 
 class Menu:
     def __init__(self, surface: pygame.Surface):
@@ -108,44 +109,69 @@ class Menu:
 
 #finish menu
 def show_game_over_screen(surface) -> str:
-
     pygame.event.clear()
-    overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    button_image = pygame.image.load(BUTTON_IMAGE_PATH).convert_alpha()
+    # затемнение фона
+    overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT + FRAME_THICKNESS))
     overlay.fill((0, 0, 0))
     overlay.set_alpha(180)
-    surface.blit(overlay, (0, FRAME_THICKNESS))
+    surface.blit(overlay, (0, 0))
 
     font = pygame.font.SysFont(None, 32)
-    text = font.render("You are loser, please go fuck yourself", True, (255, 0, 0))
-    text_rect = text.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//2 - 50 - FRAME_THICKNESS))
-    surface.blit(text, text_rect)
+    title_surf = font.render("Game Over", True, (255, 0, 0))
+    title_rect = title_surf.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//2 - 80))
+    surface.blit(title_surf, title_rect)
 
-    #buttons
+    # создаём кнопки через класс Button
     button_font = pygame.font.SysFont(None, 36)
-    buttons = {
-        "restart": pygame.Rect(WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 + 20 - FRAME_THICKNESS, 200, 50),
-        "menu": pygame.Rect(WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 + 90 - FRAME_THICKNESS, 200, 50)
-    }
+    btn_w, btn_h = 192, 64
+    cx = WINDOW_WIDTH // 2
 
-    for name, rect in buttons.items():
-        pygame.draw.rect(surface, (200, 200, 200), rect)
-        text_btn = button_font.render(name.capitalize(), True, (0, 0, 0))
-        text_rect_btn = text_btn.get_rect(center=rect.center)
-        surface.blit(text_btn, text_rect_btn)
-    pygame.display.update()
+    restart_btn = Button(
+        rect=(cx - btn_w//2, WINDOW_HEIGHT//2 - btn_h//2, btn_w, btn_h),
+        image=button_image,
+        callback=lambda: setattr(show_game_over_screen, "_choice", "restart")
+    )
 
-    #wait for event
-    while True:
+    menu_btn = Button(
+        rect=(cx - btn_w//2, WINDOW_HEIGHT//2 + 70, btn_w, btn_h),
+        image=button_image,
+        callback=lambda: setattr(show_game_over_screen, "_choice", "menu")
+    )
+
+    # текст на кнопках
+    def draw_button_text(btn, text):
+        surf = button_font.render(text, True, (0, 0, 0))
+        rect = surf.get_rect(center=btn.rect.center)
+        surface.blit(surf, rect)
+
+    show_game_over_screen._choice = None
+
+    # главный цикл ожидания
+    clock = pygame.time.Clock()
+    while show_game_over_screen._choice is None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                mx, my = event.pos
-                #my -= FRAME_THICKNESS
-                for key, rect in buttons.items():
-                    if rect.collidepoint(mx, my):
-                        return key
 
-        pygame.time.delay(50)
+            if check_frame_events(event):
+                return "quit"
+            
+            restart_btn.handle_event(event)
+            menu_btn.handle_event(event)
+
+        # перерисовываем экран
+        surface.blit(overlay, (0, 0))
+        surface.blit(title_surf, title_rect)
+        restart_btn.draw(surface)
+        menu_btn.draw(surface)
+        draw_button_text(restart_btn, "Restart")
+        draw_button_text(menu_btn, "Menu")
+        draw_styled_frame(surface)
+        draw_close_button(surface)
+        pygame.display.update()
+        clock.tick(30)
+
+    return show_game_over_screen._choice
 

@@ -11,13 +11,14 @@ TILE_SIZE = 64
 FRAME_THICKNESS = 32
 
 #pathes
-PLAYER_IMAGE_PATH = join('images', 'player1_mini.png')
-ICON_IMAGE_PATH = join('images', 'player1_mini.png')
-ELEMENT_IMAGE_PATH = join('images', 'player1_mini.png')
-TILE_IMAGE_PATH = join('images', 'block.png')
-BUTTON_IMAGE_PATH = join('images', 'button_1try.png')
-BUTTON_ONCLICK_IMAGE_PATH = join('images', 'button_1try_onclick.png')
-DIRT_IMAGE_PATH = join('images', 'player1_mini.png')
+PLAYER_IMAGE_PATH = join('images', 'player1.png')
+ICON_IMAGE_PATH = join('images', 'player1.png')
+ELEMENT_IMAGE_PATH = join('images', 'player1.png')
+TILE_IMAGE_PATH = join('images', 'stone4.png')
+BUTTON_IMAGE_PATH = join('images', 'button_3try.png')
+#BUTTON_ONCLICK_IMAGE_PATH = join('images', 'button_1try_onclick.png')
+DIRT_IMAGE_PATH = join('images', 'earth2.png')
+BLUE_SPHERE_PATH = join('images', 'blue_sphere.png')
 
 #dead zone settings
 DEAD_ZONE_TILES = 3 

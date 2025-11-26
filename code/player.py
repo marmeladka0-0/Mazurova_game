@@ -10,9 +10,12 @@ class Player(pygame.sprite.Sprite):
             self.resources_collected = 20
             return
             
-        self.image = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (TILE_SIZE, TILE_SIZE))
+        self.original_image = pygame.image.load(image_path).convert_alpha()
+        self.original_image = pygame.transform.scale(self.original_image, (TILE_SIZE, TILE_SIZE))
+        self.flipped_image = pygame.transform.flip(self.original_image, True, False)
+        self.image = self.original_image
         self.tilemap = tilemap
+
 
         #start position
         if start_pos is None:
@@ -100,9 +103,16 @@ class Player(pygame.sprite.Sprite):
                 self._dig_or_collect(new_target_x, new_target_y)
                 self.target_x = new_target_x
                 self.target_y = new_target_y
+        
+        if direction_x != 0:
+            #self.tilemap.apply_gravity(self)
+            if direction_x < 0:
+                self.image = self.original_image
+            else:
+                self.image = self.flipped_image
 
     def collect_resource(self, amount=-1):
-        if amount < 0:
+        if amount < 1:
             self.resources_collected += amount
         else:
             self.resources_collected = amount

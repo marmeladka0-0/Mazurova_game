@@ -24,7 +24,6 @@ class Button:
         self.rect = pygame.Rect(rect)
         self.callback = callback
 
-        #base visualisation
         self.image_default = pygame.transform.scale(image, self.rect.size)
         self.image_hover = adjust_brightness(self.image_default, hover_brightness)
         self.image_pressed = adjust_brightness(self.image_default, pressed_brightness)

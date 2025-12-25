@@ -1,18 +1,31 @@
 import pygame
-from settings import WINDOW_WIDTH, WINDOW_HEIGHT, FRAME_THICKNESS
 
-FRAME_COLOR = (88, 83, 87)
+from settings import *
+
+# FRAME_COLOR = (88, 83, 87)
+FRAME_COLOR = (49, 43, 43)
 BUTTON_SIZE = 24
 BUTTON_COLOR = (169, 59, 58)
 BUTTON_HOVER_COLOR = (130, 30, 30)
 X_COLOR = (221, 247, 244)
+TITLE_COLOR = (221, 247, 244)
 
-#rectangle for click detection
 CLOSE_BUTTON_RECT = pygame.Rect( WINDOW_WIDTH - BUTTON_SIZE - 4, 4, BUTTON_SIZE, BUTTON_SIZE)
 
 def draw_styled_frame(surface):
 
     pygame.draw.rect(surface, FRAME_COLOR, (0, 0, WINDOW_WIDTH, FRAME_THICKNESS))
+
+    #text
+    font_size = int(FRAME_THICKNESS * 0.6) 
+    font = pygame.font.Font(FONT_PATH, font_size)
+    
+    title_text = "DigOut: 2025 Edition"
+    title_surf = font.render(title_text, True, TITLE_COLOR)
+    
+    title_rect = title_surf.get_rect(midleft=(15, FRAME_THICKNESS // 2))
+
+    surface.blit(title_surf, title_rect)
 
 def draw_close_button(surface):
     
@@ -34,4 +47,11 @@ def check_frame_events(event):
         if CLOSE_BUTTON_RECT.collidepoint(event.pos):
             return True
             
+    return False
+
+def is_on_frame(pos):
+    x, y = pos
+    if 0 <= y <= FRAME_THICKNESS:
+        if not CLOSE_BUTTON_RECT.collidepoint(pos):
+            return True
     return False

@@ -123,5 +123,4 @@ class TileMap:
                     changed = True
 
         if changed:
-            # пересоздаём спрайты только в зоне видимости
             self.tiles = self._create_tilemap()

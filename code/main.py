@@ -16,6 +16,7 @@ from pause import PauseMenu
 from light import LightManager
 from shop import ShopMenu
 from stats import StatsMenu
+from ghost import Ghost
 
 def setup_game():
     
@@ -47,9 +48,10 @@ def start_new_game(display_surface, player_image_path, tilemap_width=200, tilema
     tilemap = TileMap(tilemap_width, tilemap_height)
     player = Player(player_image_path, tilemap)
     datapanel = DataPanel()
+    ghost = Ghost(tilemap, player)
     player.initial_y_offset = tilemap.offset.y
 
-    return tilemap, player, datapanel
+    return tilemap, player, datapanel, ghost
 
 def run_game():
     display_surface = setup_game()
@@ -61,6 +63,7 @@ def run_game():
     tilemap = None
     player = Player()
     datapanel = None
+    ghost = None
 
     #menu
     menu = Menu(display_surface)
@@ -154,7 +157,7 @@ def run_game():
                         player_image_path = PLAYER_IMAGE_PATH2
                     elif menu.nickname_input.game_data["selected_skin"] == 2:
                         player_image_path = PLAYER_IMAGE_PATH3
-                    tilemap, player, datapanel = start_new_game(display_surface, player_image_path, tilemap_width, tilemap_height)
+                    tilemap, player, datapanel, ghost = start_new_game(display_surface, player_image_path, tilemap_width, tilemap_height)
                     tilemap.save_map_to_file()
                 elif result == 'quit':
                     audio_manager.play_sound('click')
@@ -194,6 +197,8 @@ def run_game():
                 if result == "pause":
                     is_paused = True
                     pause_menu.visible = True
+                elif result == "save_map":
+                    tilemap.save_map_to_file()
 
             if is_paused:
                 res = pause_menu.handle_event(event)
@@ -221,6 +226,7 @@ def run_game():
                 result = result
                 session_traps_destroyed += traps_count
                 light_manager.update()
+                ghost.update()
                 if player.blocks_dug_now > 0:
                     menu.nickname_input.game_data["blocks_dug"] += player.blocks_dug_now
                     player.blocks_dug_now = 0
@@ -239,11 +245,12 @@ def run_game():
                 if choice == 'quit':
                     return 'quit'
                 if choice == 'restart':
-                    tilemap, player, datapanel = start_new_game(display_surface, player_image_path, tilemap_width, tilemap_height)
+                    tilemap, player, datapanel, ghost = start_new_game(display_surface, player_image_path, tilemap_width, tilemap_height)
 
             display_surface.fill(('bisque4'))            
             tilemap.partition_draw(display_surface)
             player.draw(display_surface)
+            ghost.draw(display_surface)
             light_manager.draw(display_surface, player)
             datapanel.draw(display_surface, player)
 

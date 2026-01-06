@@ -12,7 +12,7 @@ class DataPanel:
         self.y_position = FRAME_THICKNESS + 10 
 
         #pause button
-        pause_btn_size = 40
+        pause_btn_size = 32
         pause_x = WINDOW_WIDTH - pause_btn_size - 10
         pause_y = FRAME_THICKNESS + 10
         pause_icon = pygame.image.load(PAUSE_ICON_PATH).convert_alpha()
@@ -26,8 +26,29 @@ class DataPanel:
         
         self._pause_triggered = False
 
+        save_btn_size = pause_btn_size
+        save_x = WINDOW_WIDTH - save_btn_size - 10
+        save_y = (WINDOW_HEIGHT + FRAME_THICKNESS) - save_btn_size - 10
+        
+
+        save_icon = pygame.image.load(SAVE_IMAGE_PATH).convert_alpha()
+
+        save_icon = pygame.transform.scale(save_icon, (save_btn_size, save_btn_size))
+
+        self.save_button = Button(
+            rect=(save_x, save_y, save_btn_size, save_btn_size),
+            image=save_icon,
+            callback=self._on_save
+        )
+        
+        self._pause_triggered = False
+        self._save_triggered = False
+
     def _on_pause(self):
         self._pause_triggered = True
+
+    def _on_save(self):
+        self._save_triggered = True    
 
     def handle_event(self, event):
         if self.pause_button.handle_event(event):
@@ -52,3 +73,4 @@ class DataPanel:
         surface.blit(gems_surf, (self.x_position, self.y_position + res_surf.get_height() + 5 + depth_surf.get_height() + 5))
         
         self.pause_button.draw(surface)
+        self.save_button.draw(surface)

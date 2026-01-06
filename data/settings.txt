@@ -1,14 +1,14 @@
 {
-    "nickname": "Player18",
-    "gems": 289,
+    "nickname": "Playeаrr",
+    "gems": 207,
     "map_w": 200,
     "map_h": 150,
-    "blocks_dug": 408,
-    "max_depth": 21,
+    "blocks_dug": 1076,
+    "max_depth": 72,
     "traps_destroyed": 0,
     "music_volume": 0.005,
-    "sound_volume": 0.0,
+    "sound_volume": 0.005,
     "skins": 3,
-    "selected_skin": 0,
-    "traps_count": 17
+    "selected_skin": 1,
+    "traps_count": 42
 }

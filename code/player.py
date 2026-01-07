@@ -41,19 +41,19 @@ class Player(pygame.sprite.Sprite):
         
         if image_path == PLAYER_IMAGE_PATH2:
             self.idle_frames = self.load_animation('images/player2_idle')
-            self.idle_order = [0, 1, 1,  1, 1, 2, 2, 2, 2, 1, 1, 0, 0, 0] 
+            self.idle_order = [0, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 0, 0, 0] 
             self.move_frames = self.load_animation('images/player2_move')
-            self.move_order = [0]
+            self.move_order = [0, 0, 1, 1, 0, 0]
             # print("Player skin 2 loaded")
         elif image_path == PLAYER_IMAGE_PATH3:
             self.idle_frames = self.load_animation('images/player3_idle')
-            self.idle_order = [0, 1, 2, 1] 
+            self.idle_order = [0, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 0, 0, 0] 
             self.move_frames = self.load_animation('images/player3_move')
-            self.move_order = [0]
+            self.move_order = [0, 0, 1, 1, 0, 0]
             # print("Player skin 3 loaded")
         else:
             self.idle_frames = self.load_animation('images/player_idle')
-            self.idle_order = [0, 1, 2, 1] 
+            self.idle_order = [0, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 0, 0, 0] 
             self.move_frames = self.load_animation('images/player_move')
             self.move_order = [0, 0, 1, 1, 0, 0] #1 2 1
             

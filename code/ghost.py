@@ -22,7 +22,8 @@ class Ghost(pygame.sprite.Sprite):
     def update(self):
         dx = self.player.world_x - self.world_x
         dy = self.player.world_y - self.world_y
-        dist = math.hypot(dx, dy)
+        dist = math.hypot(dx, dy) 
+        # math.hypot() - sqrt(x*x + y*y)
 
         if dist != 0:
             self.world_x += (dx / dist) * self.speed

@@ -1,7 +1,6 @@
 import pygame
 from settings import *
 from button import Button
-from frame import draw_styled_frame, draw_close_button
 
 import numpy as np
 import os
@@ -19,11 +18,14 @@ def load_map_from_txt(filename):
                 if line.startswith('#') or not line.strip():
                     continue
                 row = [int(char) for char in line.strip() if char.isdigit()]
+                # isdigit - checks 0-9
+                # line.strip() - delete spaces and \n
                 if row:
                     map_array.append(row)
 
         if not map_array:
             return np.zeros(default_shape, dtype=np.uint8)
+            # np.zeros() - all 0 defined size
             
         return np.array(map_array, dtype=np.uint8)
     except Exception as e:
@@ -112,6 +114,7 @@ class MapEditor:
             mx, my = event.pos
             if my > WINDOW_HEIGHT - 80:
                 for i, t in enumerate(self.palette):
+                    # enumerate() - index and value
                     px = 50 + i * 60
                     rect = pygame.Rect(px, WINDOW_HEIGHT - 60, 40, 40)
                     if rect.collidepoint(mx, my):

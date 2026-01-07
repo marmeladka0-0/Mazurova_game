@@ -95,7 +95,8 @@ class ShopMenu:
         if not self.visible: return None
         self.current_coins = player_coins
         
-        if self.back_btn.handle_event(event): return {"action": "back", "gems": self.current_coins,}
+        if self.back_btn.handle_event(event):
+            return {"action": "back", "gems": self.current_coins,}
         
         for i, btn in enumerate(self.buttons):
             if btn.handle_event(event):

@@ -2,6 +2,7 @@ import numpy as np
 import random
 from scipy.signal import convolve2d
 from collections import deque
+# deque - двобічна черга
 
 def generate_caves(width, height, fill_prob=0.45, smooth_steps=3):
     cave = (np.random.random((height, width)) < fill_prob).astype(np.uint8)
@@ -140,6 +141,7 @@ def generate_full_map_old_version(width=206, height=156, cave_fill=0.45, cave_sm
 
     cx, cy = width // 2, height // 2
     world[cy-2:cy+3, cx-2:cx+3] = 0
+    # діапазон від до - можно через цикл було
 
     regions = get_connected_regions(world)
     if regions:

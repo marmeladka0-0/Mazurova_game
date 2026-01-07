@@ -14,7 +14,7 @@ def adjust_brightness(image: pygame.Surface, amount: int) -> pygame.Surface:
 class Button:
     def __init__(
         self,
-        rect: Tuple[int, int, int, int],
+        rect: Tuple[int, int, int, int], #незміний список елементів
         image: pygame.Surface,
         callback: Optional[Callable] = None,
         *,

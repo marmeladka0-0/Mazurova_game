@@ -166,7 +166,6 @@ def run_game():
                     audio_manager.play_sound('click')
                     pygame.time.delay(500)
                     return "quit"
-                    running = False
                 elif result == 'options':
                     audio_manager.play_sound('click')
                     showing_menu = False
@@ -214,6 +213,7 @@ def run_game():
                 result = shop_menu.handle_event(event, player_coins=gems)
                 if result is not None:
                     if result["action"] == "back":
+                        audio_manager.play_sound('click')
                         menu.nickname_input.save_game_data(
                                 gems=result["gems"]
                             )
@@ -222,22 +222,28 @@ def run_game():
                         showing_menu = True
                         # menu.nickname_input.game_data = menu.nickname_input.load_all_data()
                     elif isinstance(result, dict) and result["action"] == "buy":
+                        # isinstance - checks if dict
+                        audio_manager.play_sound('click')
                         gems = result["gems"]
 
             if not showing_options and not showing_menu and not showing_shop and not showing_stats and not showing_levels:
                 result = datapanel.handle_event(event)
                 if result == "pause":
+                    audio_manager.play_sound('click')
                     is_paused = True
                     pause_menu.visible = True
                 elif result == "save_map":
+                    audio_manager.play_sound('click')
                     tilemap.save_full_map_to_file("./data/slot0.txt")
 
             if is_paused:
                 res = pause_menu.handle_event(event)
                 if res == "resume":
+                    audio_manager.play_sound('click')
                     is_paused = False
                     pause_menu.visible = False
                 elif res == "menu":
+                    audio_manager.play_sound('click')
                     is_paused = False
                     pause_menu.visible = False
                     return 'menu'
@@ -272,11 +278,15 @@ def run_game():
 
                 menu.nickname_input.save_game_data(traps_count = traps_count)
                 choice = show_game_over_screen(display_surface, player.gems_collected)
-                if choice == 'menu': 
+                if choice == 'menu':
+                    audio_manager.play_sound('click') 
                     return 'menu'
                 if choice == 'quit':
+                    audio_manager.play_sound('click')
+                    pygame.time.delay(500)
                     return 'quit'
                 if choice == 'restart':
+                    audio_manager.play_sound('click')
                     tilemap, player, datapanel, ghost = start_new_game(display_surface, player_image_path, tilemap_width, tilemap_height)
                     tilemap.save_full_map_to_file()
 

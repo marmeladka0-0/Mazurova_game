@@ -66,10 +66,10 @@ class DataPanel:
         res_text = f"Energy: {player.resources_collected}"
         res_surf = self.font.render(res_text, True, (221, 247, 244))
         
-        depth_text = f"Depth: {player.current_depth_meters} м"
+        depth_text = f"Depth: {player.current_depth_meters}"
         depth_surf = self.font.render(depth_text, True, (221, 247, 244))
 
-        gems_text = f"Gems: {player.gems_collected} м"
+        gems_text = f"Gems: {player.gems_collected}"
         gems_surf = self.font.render(gems_text, True, (221, 247, 244))
         
         surface.blit(res_surf, (self.x_position, self.y_position))

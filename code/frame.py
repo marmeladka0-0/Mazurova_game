@@ -26,6 +26,7 @@ def draw_styled_frame(surface):
     title_rect = title_surf.get_rect(midleft=(15, FRAME_THICKNESS // 2))
 
     surface.blit(title_surf, title_rect)
+    # blit - copy one image to another
 
 def draw_close_button(surface):
     

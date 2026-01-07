@@ -5,6 +5,7 @@ from frame import draw_styled_frame, draw_close_button
 
 import numpy as np
 import os
+from mapgenerator import generate_full_map_old_version
 
 def load_map_from_txt(filename):
     if not os.path.exists(filename):
@@ -215,6 +216,24 @@ class LevelsMenu:
             callback=self._on_start_level
         )
 
+        self.generate_img = pygame.image.load(GEN_ICON_PATH).convert_alpha()
+        self.generate_img = pygame.transform.scale(self.generate_img, (32, 32))
+
+        self.gen_btn = Button(
+            rect=(WINDOW_WIDTH - 64, 64, 32, 32),
+            image=self.generate_img,
+            callback=self._on_generate_new
+        )
+
+        self.clear_img = pygame.image.load(CLEAR_ICON_PATH).convert_alpha()
+        self.clear_img = pygame.transform.scale(self.clear_img, (32, 32))
+
+        self.clear_btn = Button(
+            rect=(WINDOW_WIDTH - 110, 64, 32, 32),
+            image=self.clear_img,
+            callback=self._on_clear_slot
+        )
+
     def _set_selected_slot(self, index):
         self.selected_slot = index
 
@@ -237,7 +256,9 @@ class LevelsMenu:
                 self.current_editor.visible = False
                 self.current_editor = None
             return None
-
+        
+        if self.clear_btn.handle_event(event): return None
+        if self.gen_btn.handle_event(event): return None
         if self.editor_btn.handle_event(event): return None
         if self.back_btn.handle_event(event):
             res = self._result
@@ -278,6 +299,14 @@ class LevelsMenu:
             label_rect = label_surf.get_rect(midtop=(btn.rect.centerx, btn.rect.bottom + 10))
             self.surface.blit(label_surf, label_rect)
         
+        self.gen_btn.draw(self.surface)
+        gen_icon_rect = self.generate_img.get_rect(center=self.gen_btn.rect.center)
+        self.surface.blit(self.generate_img, gen_icon_rect)
+
+        self.clear_btn.draw(self.surface)
+        clear_icon_rect = self.clear_img.get_rect(center=self.clear_btn.rect.center)
+        self.surface.blit(self.clear_img, clear_icon_rect)
+
         self.start_level_btn.draw(self.surface)
         start_text = self.font.render("Start Game", True, (221, 247, 244))
         self.surface.blit(start_text, start_text.get_rect(center=self.start_level_btn.rect.center))
@@ -289,3 +318,35 @@ class LevelsMenu:
         self.back_btn.draw(self.surface)
         back_text = self.font.render("Back", True, (221, 247, 244))
         self.surface.blit(back_text, back_text.get_rect(center=self.back_btn.rect.center))
+
+
+    def _on_generate_new(self):
+        new_map = generate_full_map_old_version(width=206, height=156)
+        
+        filename = f"./data/slot{self.selected_slot}.txt"
+        
+        try:
+            if not os.path.exists("./data"): os.makedirs("./data")
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(f"# Generated Map {self.selected_slot}\n")
+                for row in new_map:
+                    f.write("".join(map(str, row)) + "\n")
+        except Exception as e:
+            print(f"Gen save error: {e}")
+
+
+    def _on_clear_slot(self):
+        """Заповнює поточний слот порожнечею (нулями)"""
+        filename = f"./data/slot{self.selected_slot}.txt"
+        default_shape = (156, 206)
+        empty_map = np.zeros(default_shape, dtype=np.uint8)
+        
+        try:
+            if not os.path.exists("./data"): os.makedirs("./data")
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(f"# Empty Map {self.selected_slot}\n")
+                for row in empty_map:
+                    f.write("".join(map(str, row)) + "\n")
+            # print(self.selected_slot)
+        except Exception as e:
+            print(f"Clear error: {e}")

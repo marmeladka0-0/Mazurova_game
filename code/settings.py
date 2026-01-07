@@ -31,6 +31,8 @@ GHOST_IMAGE_PATH = join('images', 'ghost3.png')
 SAVE_IMAGE_PATH = join('images', 'save_icon.png')
 STAT_IMAGE_PATH = join('images', 'stat_icon.png')
 DOC_IMAGE_PATH = join('images', 'file_icon.png')
+GEN_ICON_PATH = join('images', 'generate_icon.png')
+CLEAR_ICON_PATH = join('images', 'clear_icon.png')
 
 #dead zone settings
 DEAD_ZONE_TILES = 3 

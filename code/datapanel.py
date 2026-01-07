@@ -55,6 +55,10 @@ class DataPanel:
             res = self._pause_triggered
             self._pause_triggered = False
             return "pause" if res else None
+        if self.save_button.handle_event(event):
+            res = self._save_triggered
+            self._save_triggered = False
+            return "save_map" if res else None
         return None
 
     def draw(self, surface, player):

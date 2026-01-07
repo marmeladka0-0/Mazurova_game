@@ -17,6 +17,7 @@ from light import LightManager
 from shop import ShopMenu
 from stats import StatsMenu
 from ghost import Ghost
+from levels import LevelsMenu, load_map_from_txt
 
 def setup_game():
     
@@ -34,7 +35,7 @@ def draw_background_elements(surface, element_image, positions):
     for position in positions:
         surface.blit(element_image, position)
 
-def start_new_game(display_surface, player_image_path, tilemap_width=200, tilemap_height=150):
+def start_new_game(display_surface, player_image_path, tilemap_width=200, tilemap_height=150, map_file=None):
     #wait screen
     display_surface.fill((20, 20, 20))
     font = pygame.font.Font(FONT_PATH, 32)
@@ -45,7 +46,7 @@ def start_new_game(display_surface, player_image_path, tilemap_width=200, tilema
     draw_close_button(display_surface)
     pygame.display.update()
 
-    tilemap = TileMap(tilemap_width, tilemap_height)
+    tilemap = TileMap(tilemap_width, tilemap_height, map_data=map_file)
     player = Player(player_image_path, tilemap)
     datapanel = DataPanel()
     ghost = Ghost(tilemap, player)
@@ -56,7 +57,7 @@ def start_new_game(display_surface, player_image_path, tilemap_width=200, tilema
 def run_game():
     display_surface = setup_game()
     audio_manager.play_music()
-    
+    clock = pygame.time.Clock()
     player_image_path = PLAYER_IMAGE_PATH
 
     #initializing
@@ -86,6 +87,8 @@ def run_game():
 
     stats_menu = StatsMenu(display_surface)
     showing_stats = False
+    levels_menu = LevelsMenu(display_surface)
+    showing_levels = False
 
     running = True
     gems = menu.nickname_input.game_data["gems"]
@@ -158,7 +161,7 @@ def run_game():
                     elif menu.nickname_input.game_data["selected_skin"] == 2:
                         player_image_path = PLAYER_IMAGE_PATH3
                     tilemap, player, datapanel, ghost = start_new_game(display_surface, player_image_path, tilemap_width, tilemap_height)
-                    tilemap.save_map_to_file()
+                    tilemap.save_full_map_to_file()
                 elif result == 'quit':
                     audio_manager.play_sound('click')
                     pygame.time.delay(500)
@@ -170,13 +173,42 @@ def run_game():
                     showing_options = True
                     options_menu.visible = True
                 elif result == 'shop':
+                    audio_manager.play_sound('click')
                     showing_shop = True
                     showing_menu = False
                     shop_menu.show()
                 elif result == 'stats':
+                    audio_manager.play_sound('click')
                     showing_stats = True
                     showing_menu = False
+                elif result == 'levels':
+                    audio_manager.play_sound('click')
+                    showing_levels = True
+                    showing_menu = False
+                    levels_menu.visible = True
 
+            if showing_levels:
+                result = levels_menu.handle_event(event)
+                if result is not None:
+                    if result:
+                        if result["action"] == "back":
+                            showing_levels = False
+                            showing_menu = True
+                            audio_manager.play_sound('cancel')
+                        elif result["action"] == "load":
+                            showing_levels = False
+                            audio_manager.play_sound('click')
+                            
+                            map_file = load_map_from_txt(f"./data/slot{result['slot']}.txt")
+                            
+                            tilemap, player, datapanel, ghost = start_new_game(
+                                display_surface, 
+                                player_image_path, 
+                                tilemap_width, 
+                                tilemap_height,
+                                map_file=map_file
+                            )
+                            pass
 
             if showing_shop:
                 result = shop_menu.handle_event(event, player_coins=gems)
@@ -192,13 +224,13 @@ def run_game():
                     elif isinstance(result, dict) and result["action"] == "buy":
                         gems = result["gems"]
 
-            if not showing_options and not showing_menu and not showing_shop and not showing_stats:
+            if not showing_options and not showing_menu and not showing_shop and not showing_stats and not showing_levels:
                 result = datapanel.handle_event(event)
                 if result == "pause":
                     is_paused = True
                     pause_menu.visible = True
                 elif result == "save_map":
-                    tilemap.save_map_to_file()
+                    tilemap.save_full_map_to_file("./data/slot0.txt")
 
             if is_paused:
                 res = pause_menu.handle_event(event)
@@ -210,7 +242,7 @@ def run_game():
                     pause_menu.visible = False
                     return 'menu'
 
-            if not showing_menu and not showing_options and not showing_shop and player and event.type == pygame.KEYDOWN:
+            if not showing_menu and not showing_options and not showing_shop and not showing_levels and player and event.type == pygame.KEYDOWN:
                 player.handle_move_event(event)
 
             if check_frame_events(event):
@@ -218,8 +250,8 @@ def run_game():
                 pygame.time.delay(500)
                 running = False
 
-            
-        if not showing_menu and not showing_shop and not showing_options and not showing_stats and tilemap and player:
+
+        if not showing_menu and not showing_shop and not showing_options and not showing_stats and not showing_levels and tilemap and player:
             if not is_paused:
                 result = player.update()
                 changed, traps_count = tilemap.apply_gravity(player)
@@ -246,6 +278,7 @@ def run_game():
                     return 'quit'
                 if choice == 'restart':
                     tilemap, player, datapanel, ghost = start_new_game(display_surface, player_image_path, tilemap_width, tilemap_height)
+                    tilemap.save_full_map_to_file()
 
             display_surface.fill(('bisque4'))            
             tilemap.partition_draw(display_surface)
@@ -263,7 +296,9 @@ def run_game():
         elif showing_shop:
             shop_menu.draw(gems)
         elif showing_stats:
-            stats_menu.draw(menu.nickname_input.game_data)    
+            stats_menu.draw(menu.nickname_input.game_data)
+        elif showing_levels:
+            levels_menu.draw()    
         elif showing_menu:
             menu.draw()
 
@@ -271,6 +306,7 @@ def run_game():
         draw_close_button(display_surface)
 
         pygame.display.update()
+        clock.tick(60)
 
     return "quit"
 

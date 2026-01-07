@@ -29,6 +29,8 @@ TRAP_IMAGE_PATH = join('images', 'lovushka.png')
 BACKGROUND_IMAGE_PATH = join('images', 'download (3).png')
 GHOST_IMAGE_PATH = join('images', 'ghost3.png')
 SAVE_IMAGE_PATH = join('images', 'save_icon.png')
+STAT_IMAGE_PATH = join('images', 'stat_icon.png')
+DOC_IMAGE_PATH = join('images', 'file_icon.png')
 
 #dead zone settings
 DEAD_ZONE_TILES = 3 

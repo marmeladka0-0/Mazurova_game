@@ -2,7 +2,7 @@ import pygame
 import numpy as np
 
 from settings import *
-from mapgenerator import generate_full_map
+from mapgenerator import generate_full_map, find_start_position
 from audio import audio_manager
 
 #generated_map, start_pos, exit_pos = generate_full_map(200, 150)
@@ -15,10 +15,14 @@ class Tile(pygame.sprite.Sprite):
         self.type = type_value   # 1, 2, 3, 5, 6
 
 class TileMap:
-    def __init__(self, width = 200, height = 150):
+    def __init__(self, width = 200, height = 150, map_data=None):
         # print(width, height)
-        generated_map, start_pos = generate_full_map(width, height)
-        self.map_data = self.expand_map_with_border(generated_map)
+        if map_data is not None:
+            self.map_data = self.expand_map_with_border(map_data)
+            start_pos = find_start_position(self.map_data)
+        else:
+            generated_map, start_pos = generate_full_map(width, height)
+            self.map_data = self.expand_map_with_border(generated_map)
         self.settle_map()
         self.tiles = self._create_tilemap()
         self.offset = pygame.Vector2(0, 0)
@@ -99,6 +103,25 @@ class TileMap:
                             visual_row += "1"
                         else:
                             visual_row += " "
+                    
+                    f.write(visual_row + "\n")
+                    
+        except Exception as e:
+            print(e)
+
+    def save_full_map_to_file(self, filename="./data/from_game.txt", header_info=None):
+        if header_info is None:
+            h, w = self.map_data.shape
+            header = (f"Map Size (H x W): {h} x {w}")
+        else:
+            header = header_info
+                
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(f"# {header}\n")
+                
+                for row in self.map_data:
+                    visual_row = "".join(map(str, row))
                     
                     f.write(visual_row + "\n")
                     

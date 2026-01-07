@@ -18,21 +18,23 @@ class Menu:
         )
 
         button_image = pygame.image.load(BUTTON_IMAGE_PATH).convert_alpha()
+        stats_icon_image = pygame.image.load(STAT_IMAGE_PATH).convert_alpha()
 
         btn_w, btn_h = 192, 48
+        icon_size = 32
         cx = WINDOW_WIDTH // 2
         cy = WINDOW_HEIGHT // 2
 
         self.start_btn = Button(rect=(0, 0, btn_w, btn_h), image=button_image, callback=self._on_start)
-        # self.levels_btn = Button(rect=(0, 0, btn_w, btn_h), image=button_image, callback=self._on_levels)
+        self.levels_btn = Button(rect=(0, 0, btn_w, btn_h), image=button_image, callback=self._on_levels)
         self.shop_btn = Button(rect=(0, 0, btn_w, btn_h), image=button_image, callback=self._on_shop)
-        self.results_btn = Button(rect=(0, 0, btn_w, btn_h), image=button_image, callback=self._on_results)
+        # self.results_btn = Button(rect=(0, 0, btn_w, btn_h), image=button_image, callback=self._on_levels)
         self.options_btn = Button(rect=(0, 0, btn_w, btn_h), image=button_image, callback=self._on_options)
         self.quit_btn = Button(rect=(0, 0, btn_w, btn_h), image=button_image, callback=self._on_quit)
 
         self.buttons = [
             self.start_btn, self.shop_btn, 
-            self.results_btn, self.options_btn, self.quit_btn
+            self.levels_btn, self.options_btn, self.quit_btn
         ]
         
         spacing = 12
@@ -48,16 +50,22 @@ class Menu:
         self.nickname_input = TextInput(
             x=WINDOW_WIDTH // 2 - 192 // 2, 
             y=64, 
-            width=192, 
+            width=150, 
             height=32, 
             font_path=FONT_PATH, 
             font_size=32
         )
 
+        self.stats_icon_btn = Button(
+            rect=(self.nickname_input.rect.right + 10, self.nickname_input.rect.y, 32, 32), 
+            image=pygame.transform.scale(stats_icon_image, (32, 32)), 
+            callback=self._on_results 
+        )
+
         self.selected_index = 0
 
     def _on_start(self): self._result = "start"
-    # def _on_levels(self): self._result = "levels"
+    def _on_levels(self): self._result = "levels"
     def _on_shop(self): self._result = "shop"
     def _on_results(self): self._result = "stats"
     def _on_options(self): self._result = "options"
@@ -68,6 +76,11 @@ class Menu:
             return None
 
         self.nickname_input.handle_event(event)
+
+        if self.stats_icon_btn.handle_event(event):
+            result = self._result
+            self._result = None
+            return result
 
         m_pos = pygame.mouse.get_pos()
         for i, btn in enumerate(self.buttons):
@@ -105,7 +118,7 @@ class Menu:
         title_surf = title_font.render(" ", True, (221, 247, 244))
         self.surface.blit(title_surf, (self.nickname_input.rect.x, self.nickname_input.rect.y - 25))
 
-        button_labels = ["Start", "Shop", "Stats", "Settings", "Quit"]
+        button_labels = ["Start", "Shop", "Levels", "Settings", "Quit"]
         for i, (btn, label) in enumerate(zip(self.buttons, button_labels)):
 
             btn.hovered = (i == self.selected_index)
@@ -113,6 +126,8 @@ class Menu:
             btn.draw(self.surface)
             color = (221, 247, 244)
             self._draw_button_text(btn, label, color)
+
+        self.stats_icon_btn.draw(self.surface)
 
     def _draw_button_text(self, button: Button, text: str, color=(221, 247, 244)):
         surf = self._font.render(text, True, color)

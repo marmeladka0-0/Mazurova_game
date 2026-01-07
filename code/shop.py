@@ -107,10 +107,7 @@ class ShopMenu:
         if not self.visible: return
         self.current_coins = player_coins
 
-        overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT + FRAME_THICKNESS))
-        overlay.set_alpha(200)
-        overlay.fill((20, 20, 20))
-        self.surface.blit(overlay, (0, 0))
+        self.surface.fill((20, 20, 20))
 
         title = self.title_font.render("SHOP", True, (221, 247, 244))
         self.surface.blit(title, (WINDOW_WIDTH // 2 - title.get_width() // 2, FRAME_THICKNESS + 20))

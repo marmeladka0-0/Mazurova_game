@@ -34,6 +34,14 @@ DOC_IMAGE_PATH = join('images', 'file_icon.png')
 GEN_ICON_PATH = join('images', 'generate_icon.png')
 CLEAR_ICON_PATH = join('images', 'clear_icon.png')
 
+SPACE = 0
+WALL = 1
+DIRT = 2
+ENERGY = 3
+ROCK = 4
+GEM = 5
+TRAP = 6
+
 #dead zone settings
 DEAD_ZONE_TILES = 3 
 DEAD_ZONE_WIDTH = DEAD_ZONE_TILES * TILE_SIZE

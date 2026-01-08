@@ -134,7 +134,7 @@ class Player(pygame.sprite.Sprite):
         tile_x = int(x_pixel // TILE_SIZE)
         tile_y = int((y_pixel - FRAME_THICKNESS) // TILE_SIZE)
         if 0 <= tile_y < map_data.shape[0] and 0 <= tile_x < map_data.shape[1]:
-            return map_data[tile_y, tile_x] != 1 and map_data[tile_y, tile_x] != 4
+            return map_data[tile_y, tile_x] != WALL and map_data[tile_y, tile_x] != ROCK
         return False
 
     def _dig_or_collect(self, x_pixel, y_pixel):
@@ -145,21 +145,21 @@ class Player(pygame.sprite.Sprite):
         if 0 <= tile_y < tilemap.map_data.shape[0] and 0 <= tile_x < tilemap.map_data.shape[1]:
             tile_value = tilemap.map_data[tile_y, tile_x]
             
-            if tile_value == 2: 
+            if tile_value == DIRT: 
                 tilemap.map_data[tile_y, tile_x] = 0
                 self.collect_resource(amount=-1)
                 self.blocks_dug_now += 1
-            elif tile_value == 3: 
+            elif tile_value == ENERGY: 
                 tilemap.map_data[tile_y, tile_x] = 0
                 self.collect_resource(amount=20)
-            elif tile_value == 5: 
+            elif tile_value == GEM: 
                 tilemap.map_data[tile_y, tile_x] = 0
                 self.collect_gem(amount=1) 
-            elif tile_value == 6: 
+            elif tile_value == TRAP: 
                 audio_manager.play_sound('bump')
                 self.is_dead = True
                 return
-            elif tile_value == 4:
+            elif tile_value == ROCK:
                 return
 
             for tile in tilemap.tiles:
@@ -169,6 +169,9 @@ class Player(pygame.sprite.Sprite):
 
     def handle_move_event(self, event):
         if abs(self.target_x - self.world_x) > 20 or abs(self.target_y - self.world_y) > 20:
+            return
+        # ВИПРАВЛЕННЯ РУХУ ПІСЛЯ СМЕРТІ
+        if self.is_dead:
             return
 
         direction_x, direction_y = 0, 0

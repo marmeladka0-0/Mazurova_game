@@ -38,12 +38,12 @@ class TileMap:
 
         #dict
         tile_images = {
-            1: TILE_IMAGE_PATH,
-            2: DIRT_IMAGE_PATH,
-            3: BLUE_SPHERE_PATH,
-            4: STONE_ROCK_PATH,
-            5: GEM_IMAGE_PATH,
-            6: TRAP_IMAGE_PATH
+            WALL: TILE_IMAGE_PATH,
+            DIRT: DIRT_IMAGE_PATH,
+            ENERGY: BLUE_SPHERE_PATH,
+            ROCK: STONE_ROCK_PATH,
+            GEM: GEM_IMAGE_PATH,
+            TRAP: TRAP_IMAGE_PATH
         }
 
         loaded_images = {k: pygame.transform.scale(pygame.image.load(v).convert_alpha(),
@@ -146,7 +146,7 @@ class TileMap:
         player_tile_x = (player.target_x) // TILE_SIZE
         player_tile_y = (player.target_y - FRAME_THICKNESS) // TILE_SIZE
 
-        falling_types = [3, 4, 5]
+        falling_types = [ENERGY, ROCK, GEM]
 
         for y in range(h - 2, -1, -1):
             for x in range(w):
@@ -157,7 +157,7 @@ class TileMap:
                     target_type = self.map_data[y + 1, x]
                     is_player_below = (x == player_tile_x and (y + 1) == player_tile_y)
 
-                    if target_type == 6 and tile_type in [3, 4, 5]:
+                    if target_type == TRAP and tile_type in [ENERGY, ROCK, GEM]:
                         self.map_data[y + 1, x] = 0
                         count_radius = 5 
                         dist_x = abs(x - player_tile_x)
@@ -176,7 +176,7 @@ class TileMap:
 
                     if is_player_below:
                         if (x, y) in self.falling_stones:
-                            if tile_type in [4]:
+                            if tile_type in [ROCK]:
                                 audio_manager.play_sound('bump')
                                 player.is_dead = True
 
@@ -199,7 +199,7 @@ class TileMap:
     
     def settle_map(self):
         h, w = self.map_data.shape
-        falling_types = [3, 4, 5]
+        falling_types = [ENERGY, ROCK, GEM]
 
         map_settled = False
         while not map_settled:

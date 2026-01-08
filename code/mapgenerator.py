@@ -2,6 +2,7 @@ import numpy as np
 import random
 from scipy.signal import convolve2d
 from collections import deque
+from settings import *
 # deque - двобічна черга
 
 def generate_caves(width, height, fill_prob=0.45, smooth_steps=3):
@@ -31,15 +32,15 @@ def populate_elements(map_data, fill_ratio=0.8):
             chance = random.random()
             
             if chance < 0.05:      #5 gem
-                map_data[y, x] = 5
+                map_data[y, x] = GEM
             elif chance < 0.10:    #5 energy
-                map_data[y, x] = 3
+                map_data[y, x] = ENERGY
             elif chance < 0.20:    #10 stone
-                map_data[y, x] = 4
+                map_data[y, x] = ROCK
             elif chance < 0.22:    #2 trap
-                map_data[y, x] = 6
+                map_data[y, x] = TRAP
             else:                  #78 ground
-                map_data[y, x] = 2
+                map_data[y, x] = DIRT
                 
     return map_data
 
@@ -105,14 +106,30 @@ def get_connected_regions(map_data):
     return regions
 
 
-def connect_regions(map_data, main_region):
-    regions = get_connected_regions(map_data)
+def connect_regions(map_data, main_region, regions, item_chance=0.99):
+    regions = regions
     other_regions = [r for r in regions if r != main_region]
     for region in other_regions:
         y1, x1 = random.choice(region)
         y2, x2 = main_region[0]
-        for y in range(min(y1,y2), max(y1,y2)+1): map_data[y, x1] = 0
-        for x in range(min(x1,x2), max(x1,x2)+1): map_data[y2, x] = 0
+        for y in range(min(y1, y2), max(y1, y2) + 1):
+            spawn_item_at(map_data, y, x1, item_chance)
+            
+        # Горизонтальний тунель
+        for x in range(min(x1, x2), max(x1, x2) + 1):
+            spawn_item_at(map_data, y2, x, item_chance)
+
+def spawn_item_at(map_data, y, x, chance_to_spawn=0.99):
+    if random.random() < chance_to_spawn:
+        chance = random.random()
+        if chance < 0.03:
+            map_data[y, x] = GEM  # Gem
+        elif chance < 0.08: 
+            map_data[y, x] = ENERGY  # Energy
+        else:               
+            map_data[y, x] = DIRT  # Ground
+    else:
+        map_data[y, x] = 0 # Залишаємо порожнім
 
 def populate_elements_for_old_version(map_data, fill_ratio=0.8):
     empty_indices = np.argwhere(map_data == 0)
@@ -124,15 +141,15 @@ def populate_elements_for_old_version(map_data, fill_ratio=0.8):
         for y, x in chosen_indices:
             chance = random.random()
             if chance < 0.03:    
-                map_data[y, x] = 5
+                map_data[y, x] = GEM
             elif chance < 0.08:  
-                map_data[y, x] = 3
+                map_data[y, x] = ENERGY
             elif chance < 0.15:  
-                map_data[y, x] = 4
+                map_data[y, x] = ROCK
             elif chance < 0.18:  
-                map_data[y, x] = 6
+                map_data[y, x] = TRAP
             else:                
-                map_data[y, x] = 2
+                map_data[y, x] = DIRT
     return map_data
 
 def generate_full_map_old_version(width=206, height=156, cave_fill=0.45, cave_smooth=5):
@@ -144,11 +161,13 @@ def generate_full_map_old_version(width=206, height=156, cave_fill=0.45, cave_sm
     # діапазон від до - можно через цикл було
 
     regions = get_connected_regions(world)
+    world = populate_elements_for_old_version(world, fill_ratio=0.7)
+
     if regions:
         main_region = min(regions, key=lambda r: (r[0][0]-cy)**2 + (r[0][1]-cx)**2)
-        connect_regions(world, main_region)
+        connect_regions(world, main_region, regions)
 
-    world = populate_elements_for_old_version(world, fill_ratio=0.7)
+    # world = populate_elements_for_old_version(world, fill_ratio=0.7)
 
     return world
 

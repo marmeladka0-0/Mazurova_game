@@ -4,6 +4,7 @@ import numpy as np
 from settings import *
 from mapgenerator import generate_full_map, find_start_position
 from audio import audio_manager
+from collections import deque
 
 #generated_map, start_pos, exit_pos = generate_full_map(200, 150)
 
@@ -19,15 +20,19 @@ class TileMap:
         # print(width, height)
         if map_data is not None:
             self.map_data = self.expand_map_with_border(map_data)
-            start_pos = find_start_position(self.map_data)
+            self.start_pos = find_start_position(self.map_data)
         else:
-            generated_map, start_pos = generate_full_map(width, height)
+            generated_map, self.start_pos = generate_full_map(width, height)
             self.map_data = self.expand_map_with_border(generated_map)
+
+        # ВИПРАВЛЕННЯ ПЕРЕВІРКА
+        self.ensure_safe_spawn()
+
         self.settle_map()
         self.tiles = self._create_tilemap()
         self.offset = pygame.Vector2(0, 0)
 
-        self.start_pos = start_pos 
+        # self.start_pos = start_pos 
         self.fall_delay = 200
         self.last_fall_time = pygame.time.get_ticks()
         self.falling_stones = set()
@@ -234,3 +239,39 @@ class TileMap:
                         break
                 return True
         return False
+    
+    def ensure_safe_spawn(self, check_radius=20, min_accessible=40):
+        
+        h, w = self.map_data.shape
+        start_y, start_x = self.start_pos
+        visited = np.zeros_like(self.map_data, dtype=bool)
+        
+        impassable = {ROCK, TRAP, WALL}
+        
+        queue = deque([(start_y, start_x)])
+        visited[start_y, start_x] = True
+        accessible_cells = []
+
+        #BFS
+        while queue and len(accessible_cells) < min_accessible:
+            cy, cx = queue.popleft()
+            accessible_cells.append((cy, cx))
+            
+            for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                ny, nx = cy + dy, cx + dx
+                if (0 <= ny < h and 0 <= nx < w and 
+                    not visited[ny, nx] and 
+                    self.map_data[ny, nx] not in impassable and
+                    abs(ny - start_y) <= check_radius and 
+                    abs(nx - start_x) <= check_radius):
+                    
+                    visited[ny, nx] = True
+                    queue.append((ny, nx))
+
+        if len(accessible_cells) < min_accessible:
+            for dy in range(-1, 2):
+                for dx in range(-1, 2):
+                    ny, nx = start_y + dy, start_x + dx
+                    if 0 <= ny < h and 0 <= nx < w:
+                        if self.map_data[ny, nx] in {ROCK, TRAP}:
+                            self.map_data[ny, nx] = DIRT

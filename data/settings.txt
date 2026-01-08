@@ -1,14 +1,14 @@
 {
     "nickname": "Playeкr22",
-    "gems": 383,
+    "gems": 398,
     "map_w": 200,
     "map_h": 150,
-    "blocks_dug": 1791,
+    "blocks_dug": 1891,
     "max_depth": 94,
     "traps_destroyed": 0,
     "music_volume": 0.02,
     "sound_volume": 0.33,
     "skins": 3,
     "selected_skin": 2,
-    "traps_count": 79
+    "traps_count": 80
 }
